@@ -4,15 +4,15 @@
 # 
 # Translators:
 # Wil Odoo, 2024
-# Rasareeyar Lappiam, 2024
+# Rasareeyar Lappiam, 2025
 # 
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 17.0\n"
+"Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-26 21:55+0000\n"
+"POT-Creation-Date: 2024-12-16 13:40+0000\n"
 "PO-Revision-Date: 2024-09-25 09:41+0000\n"
-"Last-Translator: Rasareeyar Lappiam, 2024\n"
+"Last-Translator: Rasareeyar Lappiam, 2025\n"
 "Language-Team: Thai (https://app.transifex.com/odoo/teams/41243/th/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -41,11 +41,6 @@ msgid "Discussion Channel"
 msgstr "ช่องแชท"
 
 #. module: mail_bot
-#: model:ir.model,name:mail_bot.model_mail_thread
-msgid "Email Thread"
-msgstr "เธรดอีเมล"
-
-#. module: mail_bot
 #. odoo-python
 #: code:addons/mail_bot/models/mail_bot.py:0
 msgid ""
@@ -69,11 +64,9 @@ msgid ""
 "sentence with%(bold_end)s %(command_start)s/%(command_end)s. Try getting "
 "help."
 msgstr ""
-
-#. module: mail_bot
-#: model:ir.model,name:mail_bot.model_ir_http
-msgid "HTTP Routing"
-msgstr "การกำหนด HTTP"
+"เยี่ยมมาก! 👍%(new_line)s หากต้องการเข้าถึงคำสั่งพิเศษ ให้เริ่มประโยคด้วย "
+"%(bold_start)s %(command_start)s/%(command_end)s %(bold_end)s "
+"ลองขอความช่วยเหลือ"
 
 #. module: mail_bot
 #. odoo-python
@@ -100,6 +93,8 @@ msgid ""
 "I'm not smart enough to answer your question.%(new_line)sTo follow my guide,"
 " ask: %(command_start)sstart the tour%(command_end)s."
 msgstr ""
+"ฉันยังไม่ฉลาดพอที่จะตอบคำถามของคุณ %(new_line)s หากต้องการทำตามคำแนะนำของฉัน"
+" ให้ถาม: %(command_start)s เริ่มทัวร์ %(command_end)s"
 
 #. module: mail_bot
 #: model:ir.model.fields.selection,name:mail_bot.selection__res_users__odoobot_state__idle
@@ -119,11 +114,14 @@ msgid ""
 "%(bold_start)stype%(bold_end)s%(command_start)s :)%(command_end)s and press "
 "enter."
 msgstr ""
+"ไม่แน่ชัด หากต้องการทัวร์ต่อ ให้ส่งอีโมจิ: "
+"%(bold_start)stype%(bold_end)s%(command_start)s :)%(command_end)s แล้วกด "
+"Enter"
 
 #. module: mail_bot
 #: model:ir.model.fields.selection,name:mail_bot.selection__res_users__odoobot_state__not_initialized
 msgid "Not initialized"
-msgstr "อ"
+msgstr "ไม่ได้เริ่มต้น"
 
 #. module: mail_bot
 #. odoo-python
@@ -212,6 +210,8 @@ msgid ""
 "him%(bold_end)s. Write %(command_start)s@OdooBot%(command_end)s and select "
 "me."
 msgstr ""
+"ขออภัย ฉันไม่ฟัง หากต้องการเรียกใครบางคน %(bold_start) ส่ง Ping ไปที่เขา "
+"%(bold_end)s เขียน %(command_start)s @OdooBot %(command_end)s และเลือกฉัน"
 
 #. module: mail_bot
 #. odoo-python
@@ -244,7 +244,7 @@ msgstr ""
 msgid ""
 "To %(bold_start)ssend an attachment%(bold_end)s, click on the "
 "%(paperclip_icon)s icon and select a file."
-msgstr ""
+msgstr "หากต้องการส่งไฟล์แนบ ให้คลิกที่ไอคอน %(paperclip_icon)s แล้วเลือกไฟล์"
 
 #. module: mail_bot
 #. odoo-python
@@ -284,6 +284,8 @@ msgid ""
 "Wonderful! 😇%(new_line)sTry typing %(command_start)s:%(command_end)s to use "
 "canned responses. I've created a temporary one for you."
 msgstr ""
+"ยอดเยี่ยม! 😇%(new_line)s ลองพิมพ์ %(command_start)s:%(command_end)s "
+"เพื่อใช้การตอบกลับสำเร็จรูป ฉันได้สร้างการตอบกลับชั่วคราวไว้ให้คุณแล้ว"
 
 #. module: mail_bot
 #. odoo-python

@@ -1,14 +1,17 @@
 import { Plugin } from "../plugin";
-import { isBlock } from "../utils/blocks";
+import { closestBlock, isBlock } from "../utils/blocks";
 import { hasAnyNodesColor } from "@html_editor/utils/color";
 import { cleanTextNode, splitTextNode, unwrapContents } from "../utils/dom";
 import {
     areSimilarElements,
     isContentEditable,
+    isEmptyTextNode,
     isSelfClosingElement,
     isTextNode,
     isVisibleTextNode,
+    isZwnbsp,
     isZWS,
+    previousLeaf,
 } from "../utils/dom_info";
 import { childNodes, closestElement, descendants, selectElements } from "../utils/dom_traversal";
 import { FONT_SIZE_CLASSES, formatsSpecs } from "../utils/formatting";
@@ -17,6 +20,7 @@ import { prepareUpdate } from "@html_editor/utils/dom_state";
 import { _t } from "@web/core/l10n/translation";
 import { callbacksForCursorUpdate } from "@html_editor/utils/selection";
 import { withSequence } from "@html_editor/utils/resource";
+import { isFakeLineBreak } from "../utils/dom_state";
 
 const allWhitespaceRegex = /^[\s\u200b]*$/;
 
@@ -141,8 +145,12 @@ export class FormatPlugin extends Plugin {
     };
 
     removeFormat() {
+        const traversedNodes = this.dependencies.selection.getTraversedNodes();
         for (const format of Object.keys(formatsSpecs)) {
-            if (!formatsSpecs[format].removeStyle || !this.hasSelectionFormat(format)) {
+            if (
+                !formatsSpecs[format].removeStyle ||
+                !this.hasSelectionFormat(format, traversedNodes)
+            ) {
                 continue;
             }
             this._formatSelection(format, { applyStyle: false });
@@ -152,15 +160,15 @@ export class FormatPlugin extends Plugin {
     }
 
     /**
-     * Return true if the current selection on the editable contain a formated
+     * Return true if the current selection on the editable contains a formated
      * node
      *
-     * @param {Element} editable
      * @param {String} format 'bold'|'italic'|'underline'|'strikeThrough'|'switchDirection'
+     * @param {Node[]} [traversedNodes]
      * @returns {boolean}
      */
-    hasSelectionFormat(format) {
-        const selectedNodes = this.dependencies.selection.getTraversedNodes().filter(isTextNode);
+    hasSelectionFormat(format, traversedNodes = this.dependencies.selection.getTraversedNodes()) {
+        const selectedNodes = traversedNodes.filter(isTextNode);
         const isFormatted = formatsSpecs[format].isFormatted;
         return selectedNodes.some((n) => isFormatted(n, this.editable));
     }
@@ -176,18 +184,23 @@ export class FormatPlugin extends Plugin {
     isSelectionFormat(format, traversedNodes = this.dependencies.selection.getTraversedNodes()) {
         const selectedNodes = traversedNodes.filter(isTextNode);
         const isFormatted = formatsSpecs[format].isFormatted;
-        return selectedNodes.length && selectedNodes.every((n) => isFormatted(n, this.editable));
+        return (
+            selectedNodes.length &&
+            selectedNodes.every(
+                (node) =>
+                    isZwnbsp(node) || isEmptyTextNode(node) || isFormatted(node, this.editable)
+            )
+        );
     }
 
     // @todo: issues:
-    // - this method mixes every (isSelectionFormat) with some (hasAnyNodesColor)
     // - the calls to hasAnyColor should probably be replaced by calls to predicates
     //   registered as resources (e.g. by the ColorPlugin).
     hasAnyFormat(traversedNodes) {
         for (const format of Object.keys(formatsSpecs)) {
             if (
                 formatsSpecs[format].removeStyle &&
-                this.isSelectionFormat(format, traversedNodes)
+                this.hasSelectionFormat(format, traversedNodes)
             ) {
                 return true;
             }
@@ -233,7 +246,9 @@ export class FormatPlugin extends Plugin {
                 .filter(
                     (n) =>
                         ((isTextNode(n) && (isVisibleTextNode(n) || isZWS(n))) ||
-                            n.nodeName === "BR") &&
+                            (n.nodeName === "BR" &&
+                                (isFakeLineBreak(n) ||
+                                    previousLeaf(n, closestBlock(n))?.nodeName === "BR"))) &&
                         isContentEditable(n)
                 )
         );
@@ -355,6 +370,9 @@ export class FormatPlugin extends Plugin {
                 };
             }
             this.dependencies.selection.setSelection(newSelection, { normalize: false });
+            return true;
+        }
+        if (selectedFieldNodes.size > 0) {
             return true;
         }
     }
@@ -513,12 +531,22 @@ export class FormatPlugin extends Plugin {
 function getOrCreateSpan(node, ancestors) {
     const document = node.ownerDocument;
     const span = ancestors.find((element) => element.tagName === "SPAN" && element.isConnected);
+    const lastInlineAncestor = ancestors.findLast(
+        (element) => !isBlock(element) && element.isConnected
+    );
     if (span) {
         return span;
     } else {
         const span = document.createElement("span");
-        node.after(span);
-        span.append(node);
+        // Apply font span above current inline top ancestor so that
+        // the font style applies to the other style tags as well.
+        if (lastInlineAncestor) {
+            lastInlineAncestor.after(span);
+            span.append(lastInlineAncestor);
+        } else {
+            node.after(span);
+            span.append(node);
+        }
         return span;
     }
 }

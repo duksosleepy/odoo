@@ -291,7 +291,14 @@ class SaleOrder(models.Model):
         base_lines = []
         for line in order_lines:
             base_line = line._prepare_base_line_for_taxes_computation()
-            base_line['discount_taxes'] = base_line['tax_ids'].flatten_taxes_hierarchy().filtered(lambda tax: tax.amount_type != 'fixed')
+            taxes = base_line['tax_ids'].flatten_taxes_hierarchy()
+            if not reward.program_id.is_payment_program:
+                # To compute the discountable amount we get the subtotal and add
+                # non-fixed tax totals. This way fixed taxes will not be discounted
+                # This does not apply to Gift Cards and e-Wallet, where the total
+                # order amount may be paid with the card balance
+                taxes = taxes.filtered(lambda t: t.amount_type != 'fixed')
+            base_line['discount_taxes'] = taxes
             base_lines.append(base_line)
         AccountTax._add_tax_details_in_base_lines(base_lines, self.company_id)
         AccountTax._round_base_lines_tax_details(base_lines, self.company_id)
@@ -426,7 +433,10 @@ class SaleOrder(models.Model):
             else:
                 non_common_lines = discounted_lines - lines_to_discount
                 # Fixed prices are per tax
-                discounted_amounts = {line.tax_id.filtered(lambda t: t.amount_type != 'fixed'): abs(line.price_total) for line in lines}
+                discounted_amounts = defaultdict(int, {
+                    line.tax_id.filtered(lambda t: t.amount_type != 'fixed'): abs(line.price_total)
+                    for line in lines
+                })
                 for line in itertools.chain(non_common_lines, common_lines):
                     # For gift card and eWallet programs we have no tax but we can consume the amount completely
                     if lines.reward_id.program_id.is_payment_program:
@@ -555,41 +565,6 @@ class SaleOrder(models.Model):
                         'price_unit': new_price,
                         'tax_id': [Command.set(mapped_taxes.ids)],
                     })
-            return [reward_line_values]
-
-        if reward_applies_on == 'order' and reward.discount_mode in ['per_point', 'per_order']:
-            reward_line_values = {
-                **base_reward_line_values,
-                'price_unit': -min(max_discount, discountable),
-                'points_cost': point_cost,
-            }
-
-            reward_taxes = reward.tax_ids._filter_taxes_by_company(self.company_id)
-            if reward_taxes:
-                mapped_taxes = self.fiscal_position_id.map_tax(reward_taxes)
-
-                # Check for any order line where its taxes exactly match reward_taxes
-                matching_lines = [
-                    line for line in self.order_line
-                    if not line.is_delivery and set(line.tax_id) == set(mapped_taxes)
-                ]
-
-                if not matching_lines:
-                    raise ValidationError(_("No product is compatible with this promotion."))
-
-                untaxed_amount = sum(line.price_subtotal for line in matching_lines)
-                # Discount amount should not exceed total untaxed amount of the matching lines
-                reward_line_values['price_unit'] = max(
-                    -untaxed_amount,
-                    reward_line_values['price_unit']
-                )
-
-                reward_line_values['tax_id'] = [Command.set(mapped_taxes.ids)]
-
-            # Discount amount should not exceed the untaxed amount on the order
-            if abs(reward_line_values['price_unit']) > self.amount_untaxed:
-                reward_line_values['price_unit'] = -self.amount_untaxed
-
             return [reward_line_values]
 
         discount_factor = min(1, (max_discount / discountable)) if discountable else 1
@@ -995,6 +970,9 @@ class SaleOrder(models.Model):
         )
         point_ids_per_program = defaultdict(lambda: self.env['sale.order.coupon.points'])
         for pe in self.coupon_point_ids:
+            # Update coupons that were created for Public User
+            if pe.coupon_id.partner_id.is_public and not self.partner_id.is_public:
+                pe.coupon_id.partner_id = self.partner_id
             # Remove any point entry for a coupon that does not belong to the customer
             if pe.coupon_id.partner_id and pe.coupon_id.partner_id != self.partner_id:
                 pe.points = 0
@@ -1036,10 +1014,12 @@ class SaleOrder(models.Model):
                     pe.points = points
                 if len(program_point_entries) < len(all_point_changes):
                     new_coupon_points = all_point_changes[len(program_point_entries):]
+                    # next_order_coupons should be linked to the order's partner
+                    partner_id = program.program_type == 'next_order_coupons' and self.partner_id.id
                     # NOTE: Maybe we could batch the creation of coupons across multiple programs but this really only applies to gift cards
                     new_coupons = self.env['loyalty.card'].with_context(loyalty_no_mail=True, tracking_disable=True).create([{
                         'program_id': program.id,
-                        'partner_id': False,
+                        'partner_id': partner_id,
                         'points': 0,
                         'order_id': self.id,
                     } for _ in new_coupon_points])
@@ -1260,7 +1240,7 @@ class SaleOrder(models.Model):
                     )
                 elif not product_qty_matched:
                     program_result['error'] = _("You don't have the required product quantities on your sales order.")
-            elif not self._allow_nominative_programs():
+            elif self.partner_id.is_public and not self._allow_nominative_programs():
                 program_result['error'] = _("This program is not available for public users.")
             if 'error' not in program_result:
                 points_result = [points] + rule_points

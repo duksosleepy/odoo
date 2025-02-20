@@ -26,7 +26,10 @@ export class TourStepAutomatic extends TourStep {
                     } else {
                         reject(
                             new Error(
-                                `UNDETERMINISM: two differents elements have been found in ${delay}ms for trigger ${this.trigger}`
+                                [
+                                    ...this.describeWhyIFailed,
+                                    `UNDETERMINISM: two differents elements have been found in ${delay}ms for trigger ${this.trigger}`,
+                                ].join("\n")
                             )
                         );
                     }
@@ -103,7 +106,7 @@ export class TourStepAutomatic extends TourStep {
             this.skipped = true;
             return true;
         }
-        const visible = !this.trigger.includes(":visible");
+        const visible = !/:(hidden|visible)\b/.test(this.trigger);
         this.element = hoot.queryFirst(this.trigger, { visible });
         return !this.isUIBlocked && this.elementIsEnabled && this.elementIsInModal
             ? this.element

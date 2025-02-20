@@ -1,4 +1,5 @@
 import { Plugin } from "@html_editor/plugin";
+import { fillShrunkPhrasingParent } from "@html_editor/utils/dom";
 import { closestElement } from "@html_editor/utils/dom_traversal";
 import { parseHTML } from "@html_editor/utils/html";
 import { withSequence } from "@html_editor/utils/resource";
@@ -9,8 +10,9 @@ function isAvailable(selection) {
 }
 export class BannerPlugin extends Plugin {
     static id = "banner";
-    static dependencies = ["history", "dom", "emoji", "selection"];
+    static dependencies = ["baseContainer", "history", "dom", "emoji", "selection", "sanitize"];
     resources = {
+        normalize_handlers: this.normalize.bind(this),
         user_commands: [
             {
                 id: "banner_info",
@@ -85,12 +87,15 @@ export class BannerPlugin extends Plugin {
     }
 
     insertBanner(title, emoji, alertClass) {
+        const baseContainer = this.dependencies.baseContainer.createBaseContainer();
+        fillShrunkPhrasingParent(baseContainer);
+        const baseContainerHtml = baseContainer.outerHTML;
         const bannerElement = parseHTML(
             this.document,
-            `<div class="o_editor_banner user-select-none o_not_editable lh-1 d-flex align-items-center alert alert-${alertClass} pb-0 pt-3" role="status" contenteditable="false">
+            `<div class="o_editor_banner user-select-none o_not_editable lh-1 d-flex align-items-center alert alert-${alertClass} pb-0 pt-3" role="status">
                 <i class="o_editor_banner_icon mb-3 fst-normal" aria-label="${title}">${emoji}</i>
-                <div class="w-100 px-3" contenteditable="true">
-                    <p><br></p>
+                <div class="w-100 px-3 o_editable">
+                    ${baseContainerHtml}
                 </div>
             </div`
         ).childNodes[0];
@@ -102,8 +107,9 @@ export class BannerPlugin extends Plugin {
             const zws = document.createTextNode("\u200B");
             bannerElement.before(zws);
         }
+        const baseContainerName = this.dependencies.baseContainer.getDefaultNodeName();
         this.dependencies.selection.setCursorStart(
-            bannerElement.querySelector(".o_editor_banner > div > p")
+            bannerElement.querySelector(`.o_editor_banner > div > ${baseContainerName}`)
         );
         this.dependencies.history.addStep();
     }
@@ -116,5 +122,9 @@ export class BannerPlugin extends Plugin {
                 this.dependencies.history.addStep();
             },
         });
+    }
+
+    normalize(root) {
+        this.dependencies.sanitize.restoreSanitizedContentEditable(root);
     }
 }

@@ -10,7 +10,7 @@ import { user } from "@web/core/user";
 
 export class ChatGPTPlugin extends Plugin {
     static id = "chatgpt";
-    static dependencies = ["selection", "history", "dom", "sanitize", "dialog"];
+    static dependencies = ["baseContainer", "selection", "history", "dom", "sanitize", "dialog"];
     resources = {
         user_commands: [
             {
@@ -35,6 +35,10 @@ export class ChatGPTPlugin extends Plugin {
                 Component: LanguageSelector,
                 props: {
                     onSelected: (language) => this.openDialog({ language }),
+                    isDisabled: () => {
+                        const sel = this.document.getSelection();
+                        return !sel.toString().replace(/\s+/g, "");
+                    },
                 },
             },
             {
@@ -42,6 +46,7 @@ export class ChatGPTPlugin extends Plugin {
                 groupId: "ai",
                 commandId: "openChatGPTDialog",
                 text: "AI",
+                isDisabled: (sel) => !sel.textContent().replace(/\s+/g, ""),
             },
         ],
 
@@ -98,6 +103,7 @@ export class ChatGPTPlugin extends Plugin {
             },
             ...params,
         };
+        dialogParams.baseContainer = this.dependencies.baseContainer.getDefaultNodeName();
         // collapse to end
         const sanitize = this.dependencies.sanitize.sanitize;
         if (selection.isCollapsed) {

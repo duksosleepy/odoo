@@ -100,9 +100,10 @@ class PaymentTransaction(models.Model):
         return_route = WorldlineController._return_url
         return_url_params = urls.url_encode({'provider_id': str(self.provider_id.id)})
         return_url = f'{urls.url_join(base_url, return_route)}?{return_url_params}'
+        first_name, last_name = payment_utils.split_partner_name(self.partner_name)
         payload = {
             'hostedCheckoutSpecificInput': {
-                'locale': self.partner_lang,
+                'locale': self.partner_lang or '',
                 'returnUrl': return_url,
                 'showResultPage': False,
             },
@@ -113,15 +114,21 @@ class PaymentTransaction(models.Model):
                 },
                 'customer': {  # required to create a token and for some redirected payment methods
                     'billingAddress': {
-                        'city': self.partner_city,
-                        'countryCode': self.partner_country_id.code,
-                        'state': self.partner_state_id.name,
-                        'street': self.partner_address,
-                        'zip': self.partner_zip,
+                        'city': self.partner_city or '',
+                        'countryCode': self.partner_country_id.code or '',
+                        'state': self.partner_state_id.name or '',
+                        'street': self.partner_address or '',
+                        'zip': self.partner_zip or '',
                     },
                     'contactDetails': {
-                        'emailAddress': self.partner_email,
-                        'phoneNumber': self.partner_phone,
+                        'emailAddress': self.partner_email or '',
+                        'phoneNumber': self.partner_phone or '',
+                    },
+                    'personalInformation': {
+                        'name': {
+                            'firstName': first_name or '',
+                            'surname': last_name or '',
+                        },
                     },
                 },
                 'references': {
@@ -268,7 +275,7 @@ class PaymentTransaction(models.Model):
 
         # Update the provider reference.
         payment_data = notification_data['payment']
-        self.provider_reference = payment_data.get('id', '').rstrip('_0')
+        self.provider_reference = payment_data.get('id', '').rsplit('_', 1)[0]
 
         # Update the payment method.
         payment_output = payment_data.get('paymentOutput', {})
@@ -302,15 +309,32 @@ class PaymentTransaction(models.Model):
             if self.tokenize and has_token_data:
                 self._worldline_tokenize_from_notification_data(payment_method_data)
             self._set_done()
-        else:  # Classify unsupported payment status as the `error` tx state.
-            _logger.info(
-                "Received data with invalid payment status (%(status)s) for transaction with"
-                " reference %(ref)s",
-                {'status': status, 'ref': self.reference},
-            )
-            self._set_error("Worldline: " + _(
-                "Received invalid transaction status %(status)s.", status=status
-            ))
+        else:
+            error_code = None
+            if errors := payment_data.get('statusOutput', {}).get('errors'):
+                error_code = errors[0].get('errorCode')
+            if status in const.PAYMENT_STATUS_MAPPING['cancel']:
+                self._set_canceled("Worldline: " + _(
+                    "Transaction cancelled with error code %(error_code)s.",
+                    error_code=error_code,
+                ))
+            elif status in const.PAYMENT_STATUS_MAPPING['declined']:
+                self._set_error("Worldline: " + _(
+                    "Transaction declined with error code %(error_code)s.",
+                    error_code=error_code,
+                ))
+            else:  # Classify unsupported payment status as the `error` tx state.
+                _logger.info(
+                    "Received data with invalid payment status (%(status)s) for transaction with "
+                    "reference %(ref)s.",
+                    {'status': status, 'ref': self.reference},
+                )
+                self._set_error("Worldline: " + _(
+                    "Received invalid transaction status %(status)s with error code "
+                    "%(error_code)s.",
+                    status=status,
+                    error_code=error_code,
+                ))
 
     def _worldline_tokenize_from_notification_data(self, pm_data):
         """ Create a new token based on the notification data.

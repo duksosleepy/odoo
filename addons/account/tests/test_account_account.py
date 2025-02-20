@@ -98,6 +98,25 @@ class TestAccountAccount(TestAccountMergeCommon):
         account_copy_3.write({'code_mapping_ids': [Command.create({'company_id': company_3.id, 'code': '180026'})]})
         self.assertRecordValues(account_copy_3.with_company(company_3), [{'code': '180026'}])
 
+    def test_write_on_code_from_branch(self):
+        """ Ensure that when writing on account.code from a company, the old code isn't erroneously kept
+        on other companies that share the same root_id """
+        branch = self.env['res.company'].create([{
+            'name': "My Test Branch",
+            'parent_id': self.company_data['company'].id,
+        }])
+
+        account = self.env['account.account'].create([{
+            'name': 'My Test Account',
+            'code': '180001',
+        }])
+
+        # Change the code from the branch
+        account.with_company(branch).code = '180002'
+
+        # Ensure it's changed from the perspective of the root company
+        self.assertRecordValues(account, [{'code': '180002'}])
+
     def test_ensure_code_unique(self):
         ''' Test the `_ensure_code_unique` check method.
 
@@ -937,3 +956,25 @@ class TestAccountAccount(TestAccountMergeCommon):
             child_group,
             "group_id computation should work if company_id is not in self.env.companies"
         )
+
+    def test_compute_account(self):
+        account_sale = self.company_data['default_account_revenue'].copy()
+
+        invoice = self.env['account.move'].create({
+            'move_type': 'out_invoice',
+            'partner_id': self.partner_a.id,
+            'invoice_line_ids': [
+                Command.create({
+                    'account_id': account_sale.id,
+                    'product_id': self.product_a.id,
+                    'quantity': 1,
+                    'price_unit': 100,
+                })
+            ]
+        })
+
+        self.assertEqual(invoice.invoice_line_ids.account_id, account_sale)
+
+        invoice.line_ids._compute_account_id()
+
+        self.assertEqual(invoice.invoice_line_ids.account_id, self.company_data['default_account_revenue'])

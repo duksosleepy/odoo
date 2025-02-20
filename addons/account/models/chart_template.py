@@ -99,7 +99,7 @@ class AccountChartTemplate(models.AbstractModel):
         field = self.env['ir.module.module']._fields['account_templates']
         modules = (
             self.env.cache.get_records(self.env['ir.module.module'], field)
-            or self.env['ir.module.module'].search([])
+            or self.env['ir.module.module'].sudo().search([])
         )
 
         return {
@@ -470,11 +470,12 @@ class AccountChartTemplate(models.AbstractModel):
             if model in data:
                 data[model] = data.pop(model)
 
-        # Remove data of unknown fields present in the company template
-        company_data = data.get('res.company')
-        if company_data and not self.env.context.get('l10n_check_fields_complete'):
-            for fname in list(company_data.get(company.id)):
-                if fname not in company._fields:
+        if data.get('res.company', {}).get(company.id):
+            # Filter out default values that we don't want to ignore if the field is not present, in any case.
+            company_data_to_filter = {'account_production_wip_account_id', 'account_production_wip_overhead_account_id'}
+            # Remove data of unknown fields present in the company template
+            for fname in list(data['res.company'][company.id]):
+                if fname not in company._fields and (not self.env.context.get('l10n_check_fields_complete') or fname in company_data_to_filter):
                     del data['res.company'][company.id][fname]
 
         # Translate the untranslatable fields we want to translate anyway
@@ -524,16 +525,13 @@ class AccountChartTemplate(models.AbstractModel):
                     try:
                         values[fname] = self.ref(value).id if value not in ('', 'False', 'None') else False
                     except ValueError:
-                        if model != self.env['res.company']:
+                        if model._name == 'res.company':
+                            # Try a fallback on the company when reloading/loading on a branch
+                            values[fname] = self.env.company[fname] or self.env.company.root_id[fname] or False
+                        else:
                             _logger.warning("Failed when trying to recover %s for field=%s", value, field)
                             failed_fields.append(fname)
-
-                        # We can't find the record referenced in the chart template in our database.
-                        # This might happen when we're creating a branch and the parent company has deleted the
-                        # referenced record and replaced it with something else.
-                        #
-                        # In this case, we try looking for the record already set on the company or its root.
-                        values[fname] = self.env.company[fname] or self.env.company.parent_ids[0][fname] or False
+                            values[fname] = False
                 elif field.type in ('one2many', 'many2many') and isinstance(value[0], (list, tuple)):
                     for i, (command, _id, *last_part) in enumerate(value):
                         if last_part:
@@ -1367,9 +1365,9 @@ class AccountChartTemplate(models.AbstractModel):
 
         # Gather translations for records that are created from the chart_template data
         for chart_template, chart_companies in groupby(companies, lambda c: c.chart_template):
-            template_data = template_data or self.env['account.chart.template']._get_chart_template_data(chart_template)
-            template_data.pop('template_data', None)
-            for mname, data in template_data.items():
+            chart_template_data = template_data or self.env['account.chart.template']._get_chart_template_data(chart_template)
+            chart_template_data.pop('template_data', None)
+            for mname, data in chart_template_data.items():
                 for _xml_id, record in data.items():
                     fnames = {fname.split('@')[0] for fname in record if fname != '__translation_module__'}
                     for lang in langs:

@@ -11,31 +11,33 @@
 # Moshe Flam <pashute@gmail.com>, 2024
 # yael terner, 2024
 # דודי מלכה <Dudimalka6@gmail.com>, 2024
-# hed shefer <hed@laylinetech.com>, 2024
+# Hed Shefer <hed@laylinetech.com>, 2024
 # NoaFarkash, 2024
 # Jonathan Spier, 2024
-# Yihya Hugirat <hugirat@gmail.com>, 2024
 # Roy Sayag, 2024
-# MichaelHadar, 2024
 # Martin Trigaux, 2024
 # ExcaliberX <excaliberx@gmail.com>, 2024
-# Lilach Gilliam <lilach.gilliam@gmail.com>, 2024
 # Netta Waizer, 2024
 # yacov mosbacher <ymosba@gmail.com>, 2024
 # Ofir Blum <ofir.blum@gmail.com>, 2024
-# ZVI BLONDER <ZVIBLONDER@gmail.com>, 2024
 # Ha Ketem <haketem@gmail.com>, 2024
 # tomerlayline, 2024
 # Uri Segman, 2024
 # Mendi Soudry, 2024
+# Lilach Gilliam <lilach.gilliam@gmail.com>, 2025
+# MichaelHadar, 2025
+# or balmas, 2025
+# ZVI BLONDER <ZVIBLONDER@gmail.com>, 2025
+# Yihya Hugirat <hugirat@gmail.com>, 2025
+# Yoram Lavi, 2025
 # 
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-25 07:49+0000\n"
+"POT-Creation-Date: 2025-02-10 13:24+0000\n"
 "PO-Revision-Date: 2024-09-25 09:42+0000\n"
-"Last-Translator: Mendi Soudry, 2024\n"
+"Last-Translator: Yoram Lavi, 2025\n"
 "Language-Team: Hebrew (https://app.transifex.com/odoo/teams/41243/he/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -54,7 +56,7 @@ msgstr "מס' עורך קוד"
 #. odoo-python
 #: code:addons/web/controllers/export.py:0
 msgid "%(property_string)s (%(parent_name)s)"
-msgstr ""
+msgstr "%(property_string)s (%(parent_name)s)"
 
 #. module: web
 #. odoo-javascript
@@ -1061,7 +1063,7 @@ msgstr ""
 #. odoo-javascript
 #: code:addons/web/static/src/core/file_upload/file_upload_service.js:0
 msgid "An error occured while uploading."
-msgstr ""
+msgstr "שגיאה התרחשה בעת העלאה."
 
 #. module: web
 #. odoo-javascript
@@ -1285,6 +1287,18 @@ msgstr ""
 #: code:addons/web/static/src/views/fields/dynamic_placeholder_popover.xml:0
 msgid "Back"
 msgstr "חזור"
+
+#. module: web
+#. odoo-javascript
+#: code:addons/web/static/src/search/breadcrumbs/breadcrumbs.js:0
+msgid "Back to “%s”"
+msgstr ""
+
+#. module: web
+#. odoo-javascript
+#: code:addons/web/static/src/search/breadcrumbs/breadcrumbs.js:0
+msgid "Back to “%s” form"
+msgstr ""
 
 #. module: web
 #: model_terms:ir.ui.view,arch_db:web.view_base_document_layout
@@ -1978,7 +1992,6 @@ msgstr "זכויות יוצרים © 2004"
 
 #. module: web
 #. odoo-javascript
-#: code:addons/web/static/src/views/fields/image/image_field.js:0
 #: code:addons/web/static/src/views/fields/signature/signature_field.js:0
 msgid "Could not display the selected image"
 msgstr "לא ניתן היה להציג את התמונה שנבחרה"
@@ -1991,9 +2004,9 @@ msgstr ""
 
 #. module: web
 #. odoo-javascript
-#: code:addons/web/static/src/views/fields/image_url/image_url_field.js:0
-msgid "Could not display the specified image url."
-msgstr "לא ניתן היה להציג את התמונה שבקישור"
+#: code:addons/web/static/src/views/fields/google_slide_viewer/google_slide_viewer.js:0
+msgid "Could not display the selected spreadsheet"
+msgstr ""
 
 #. module: web
 #. odoo-javascript
@@ -2047,7 +2060,7 @@ msgstr ""
 #. odoo-javascript
 #: code:addons/web/static/src/views/fields/relational_utils.js:0
 msgid "Create %s"
-msgstr ""
+msgstr "צור %s"
 
 #. module: web
 #. odoo-javascript
@@ -2662,7 +2675,7 @@ msgstr "דוא\"ל"
 #. odoo-javascript
 #: code:addons/web/static/src/webclient/settings_form_view/widgets/res_config_invite_users.js:0
 msgid "Empty email address"
-msgstr ""
+msgstr "כתובת המייל ריקה"
 
 #. module: web
 #. odoo-javascript
@@ -3109,6 +3122,13 @@ msgstr ""
 
 #. module: web
 #. odoo-javascript
+#: code:addons/web/static/src/views/fields/google_slide_viewer/google_slide_viewer.js:0
+#: code:addons/web/static/src/views/fields/google_slide_viewer/google_slide_viewer.xml:0
+msgid "Google Slide Viewer"
+msgstr ""
+
+#. module: web
+#. odoo-javascript
 #: code:addons/web/static/src/core/colorlist/colorlist.js:0
 msgid "Green"
 msgstr "ירוק"
@@ -3404,7 +3424,7 @@ msgstr "מרווח"
 #. odoo-javascript
 #: code:addons/web/static/src/core/errors/error_dialogs.js:0
 msgid "Invalid Operation"
-msgstr ""
+msgstr "פעולה לא חוקית "
 
 #. module: web
 #. odoo-javascript
@@ -3866,6 +3886,12 @@ msgstr "טען נתוני הדגמה"
 
 #. module: web
 #. odoo-javascript
+#: code:addons/web/static/src/views/graph/graph_controller.xml:0
+msgid "Load everything anyway."
+msgstr ""
+
+#. module: web
+#. odoo-javascript
 #: code:addons/web/static/src/search/search_bar/search_bar.js:0
 msgid "Load more"
 msgstr "טען עוד"
@@ -4017,6 +4043,12 @@ msgstr "רבים ליחיד"
 #: code:addons/web/static/src/views/fields/domain/domain_field.xml:0
 msgid "Match"
 msgstr "התאם"
+
+#. module: web
+#. odoo-javascript
+#: code:addons/web/static/src/views/fields/gauge/gauge_field.js:0
+msgid "Max value"
+msgstr ""
 
 #. module: web
 #. odoo-javascript
@@ -4234,6 +4266,12 @@ msgstr "עוד"
 #. odoo-javascript
 #: code:addons/web/static/src/webclient/navbar/navbar.xml:0
 msgid "More Menu"
+msgstr ""
+
+#. module: web
+#. odoo-javascript
+#: code:addons/web/static/src/views/fields/statusbar/statusbar_field.xml:0
+msgid "More..."
 msgstr ""
 
 #. module: web
@@ -4518,7 +4556,7 @@ msgstr "לא ניתן למצוא מכשיר."
 #. module: web
 #. odoo-javascript
 #: code:addons/web/static/src/core/emoji_picker/emoji_picker.xml:0
-msgid "No emoji match your search"
+msgid "No emoji matches your search"
 msgstr ""
 
 #. module: web
@@ -4587,7 +4625,7 @@ msgstr ""
 #: code:addons/web/static/src/views/kanban/kanban_controller.js:0
 #: code:addons/web/static/src/views/list/list_controller.js:0
 msgid "No, keep it"
-msgstr ""
+msgstr "לא,שמור על כך"
 
 #. module: web
 #. odoo-javascript
@@ -4892,7 +4930,7 @@ msgstr "פתוח:"
 #: code:addons/web/static/src/views/calendar/calendar_controller.js:0
 #: code:addons/web/static/src/views/fields/relational_utils.js:0
 msgid "Open: %s"
-msgstr "פתיחה: %s"
+msgstr "פתח: %s"
 
 #. module: web
 #. odoo-javascript
@@ -5363,7 +5401,7 @@ msgstr "טווח"
 #. odoo-javascript
 #: code:addons/web/static/src/core/colorlist/colorlist.js:0
 msgid "Raspberry"
-msgstr ""
+msgstr "פטל"
 
 #. module: web
 #. odoo-javascript
@@ -5470,7 +5508,7 @@ msgstr ""
 #. odoo-javascript
 #: code:addons/web/static/src/views/fields/image/image_field.js:0
 msgid "Reload"
-msgstr ""
+msgstr "טען מחדש"
 
 #. module: web
 #. odoo-javascript
@@ -5759,6 +5797,12 @@ msgstr "חפש עוד..."
 
 #. module: web
 #. odoo-javascript
+#: code:addons/web/static/src/core/emoji_picker/emoji_picker.xml:0
+msgid "Search emoji"
+msgstr ""
+
+#. module: web
+#. odoo-javascript
 #: code:addons/web/static/src/core/commands/default_providers.js:0
 msgid "Search for a command..."
 msgstr "חיפוש פקודה..."
@@ -5767,12 +5811,6 @@ msgstr "חיפוש פקודה..."
 #. odoo-javascript
 #: code:addons/web/static/src/webclient/menus/menu_providers.js:0
 msgid "Search for a menu..."
-msgstr ""
-
-#. module: web
-#. odoo-javascript
-#: code:addons/web/static/src/core/emoji_picker/emoji_picker.xml:0
-msgid "Search for an emoji"
 msgstr ""
 
 #. module: web
@@ -6205,6 +6243,12 @@ msgstr "סטטוס"
 
 #. module: web
 #. odoo-javascript
+#: code:addons/web/static/src/views/fields/statusbar/statusbar_field.xml:0
+msgid "Statusbar"
+msgstr ""
+
+#. module: web
+#. odoo-javascript
 #: code:addons/web/static/src/webclient/settings_form_view/settings_confirmation_dialog.xml:0
 msgid "Stay Here"
 msgstr "השאר בדף זה"
@@ -6484,12 +6528,22 @@ msgid ""
 msgstr ""
 
 #. module: web
+#. odoo-javascript
+#: code:addons/web/static/src/views/graph/graph_controller.xml:0
+msgid ""
+"There are too many data. The graph only shows a sample. Use the filters to "
+"refine the scope."
+msgstr ""
+
+#. module: web
 #. odoo-python
 #: code:addons/web/controllers/export.py:0
 msgid ""
 "There are too many rows (%(count)s rows, limit: %(limit)s) to export as "
 "Excel 2007-2013 (.xlsx) format. Consider splitting the export."
 msgstr ""
+"יש יותר מדי שורות (%(count)s שורות, מגבלה: %(limit)s) לייצא כפורמט Excel "
+"2007-2013 (.xlsx). שקול לפצל את הייצוא."
 
 #. module: web
 #. odoo-javascript
@@ -6630,6 +6684,18 @@ msgstr ""
 #: code:addons/web/static/src/views/widgets/ribbon/ribbon.js:0
 msgid "Title"
 msgstr "תואר"
+
+#. module: web
+#. odoo-javascript
+#: code:addons/web/static/src/core/emoji_picker/emoji_picker.xml:0
+msgid "To next categories"
+msgstr ""
+
+#. module: web
+#. odoo-javascript
+#: code:addons/web/static/src/core/emoji_picker/emoji_picker.xml:0
+msgid "To previous categories"
+msgstr ""
 
 #. module: web
 #. odoo-javascript
@@ -7141,7 +7207,7 @@ msgstr "צפה במטא-דאטא"
 #. odoo-javascript
 #: code:addons/web/static/src/views/debug_items.js:0
 msgid "View: %(displayName)s"
-msgstr ""
+msgstr "תצוגה: %(displayName)s"
 
 #. module: web
 #. odoo-javascript
@@ -13346,7 +13412,7 @@ msgstr ""
 #. odoo-javascript
 #: code:addons/web/static/src/core/emoji_picker/emoji_data.js:0
 msgid "folder"
-msgstr ""
+msgstr "תיקיה"
 
 #. module: web
 #. odoo-javascript
@@ -20279,13 +20345,13 @@ msgstr ""
 #. odoo-javascript
 #: code:addons/web/static/src/core/emoji_picker/emoji_data.js:0
 msgid "print"
-msgstr ""
+msgstr "הדפס"
 
 #. module: web
 #. odoo-javascript
 #: code:addons/web/static/src/core/emoji_picker/emoji_data.js:0
 msgid "printer"
-msgstr ""
+msgstr "מדפסת"
 
 #. module: web
 #. odoo-javascript
@@ -20351,7 +20417,7 @@ msgstr ""
 #. odoo-javascript
 #: code:addons/web/static/src/core/emoji_picker/emoji_data.js:0
 msgid "public address"
-msgstr ""
+msgstr "כתובת מפורסמת"
 
 #. module: web
 #. odoo-javascript
@@ -20681,7 +20747,7 @@ msgstr ""
 #. odoo-javascript
 #: code:addons/web/static/src/core/emoji_picker/emoji_data.js:0
 msgid "receipt"
-msgstr ""
+msgstr "קבלה"
 
 #. module: web
 #. odoo-javascript
@@ -22821,7 +22887,7 @@ msgstr ""
 #. odoo-javascript
 #: code:addons/web/static/src/core/emoji_picker/emoji_data.js:0
 msgid "split"
-msgstr ""
+msgstr "פצל"
 
 #. module: web
 #. odoo-javascript
