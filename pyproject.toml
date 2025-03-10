@@ -61,6 +61,11 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "LGPL-3" }
 
+[project.optional-dependencies]
+lint = [
+    "ruff>=0.9.10",
+]
+
 [tool.rye]
 managed = true
 virtual = true
